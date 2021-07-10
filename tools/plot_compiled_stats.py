@@ -13,7 +13,7 @@ SERIES_TITLES = {
     "4": "Packet Loss",
     "5": "Bandwidth",
     "6": "Topology",
-    "final": "Mixture"
+    "final": "Mixture",
 }
 
 CASE_TITLES = {
@@ -23,7 +23,7 @@ CASE_TITLES = {
     "4": ["0.01%", "0.1%", "0.5%", "1%", "50ms latency"],
     "5": ["5 Mbps", "20 Mbps", "50 Mbps", "80 Mbps", "1000 Mbps", "50ms latency"],
     "6": ["BA = 2", "BA = 4", "BA = 6", "BA = 10", "50ms latency"],
-    "final": ["Mixutre", "50ms latency"]
+    "final": ["Mixutre", "50ms latency"],
 }
 
 
@@ -45,7 +45,7 @@ def plot_graph(graphs, title, key, ylabel, fname):
 
         if series not in ["1"]:
             # add series 1 plot as  control
-            plt.plot(graphs["2a"][key], '--')
+            plt.plot(graphs["2a"][key], "--")
 
         plt.xticks(range(len(BLOCK_SIZES)), BLOCK_SIZES)
         plt.ylabel(ylabel)
@@ -55,7 +55,7 @@ def plot_graph(graphs, title, key, ylabel, fname):
         plt.savefig(f"{SAVE_DIR}/series{series}_{fname}.png")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     graphs = {}
 
     with open("compiled_stats.json", "r") as f:
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     for test in compiled_stats:
         series, block_size = test["testName"].split("-")
-        block_size = block_size + 'B'
+        block_size = block_size + "B"
         if series not in graphs:
             graphs[series] = {}
 
@@ -76,7 +76,9 @@ if __name__ == '__main__':
 
         graphs[series][block_size]["avg_fifty"].append(test["avgFiftyPctTime"])
         graphs[series][block_size]["avg_hundred"].append(test["avgHundredPctTime"])
-        graphs[series][block_size]["reorgs_per_block"].append(test["totalReorgs"] / test["finalizedBlocks"])
+        graphs[series][block_size]["reorgs_per_block"].append(
+            test["totalReorgs"] / test["finalizedBlocks"]
+        )
 
     # organize data into lists for graphing
     max_50pct_diff = 0
@@ -88,12 +90,30 @@ if __name__ == '__main__':
             "reorgs_per_block": [],
         }
         for size in BLOCK_SIZES:
-            graphs[series]["fifty_pct_times"].append(mean(block_size[size]["avg_fifty"]))
-            graphs[series]["hundred_pct_times"].append(mean(block_size[size]["avg_hundred"]))
-            graphs[series]["reorgs_per_block"].append(mean(block_size[size]["reorgs_per_block"]))
+            graphs[series]["fifty_pct_times"].append(
+                mean(block_size[size]["avg_fifty"])
+            )
+            graphs[series]["hundred_pct_times"].append(
+                mean(block_size[size]["avg_hundred"])
+            )
+            graphs[series]["reorgs_per_block"].append(
+                mean(block_size[size]["reorgs_per_block"])
+            )
 
-        max_50pct_diff = max(abs(graphs[series]["fifty_pct_times"][0] -  graphs[series]["fifty_pct_times"][1]), max_50pct_diff)
-        max_100pct_diff = max(abs(graphs[series]["hundred_pct_times"][0] -  graphs[series]["hundred_pct_times"][1]), max_100pct_diff)
+        max_50pct_diff = max(
+            abs(
+                graphs[series]["fifty_pct_times"][0]
+                - graphs[series]["fifty_pct_times"][1]
+            ),
+            max_50pct_diff,
+        )
+        max_100pct_diff = max(
+            abs(
+                graphs[series]["hundred_pct_times"][0]
+                - graphs[series]["hundred_pct_times"][1]
+            ),
+            max_100pct_diff,
+        )
 
     print(f"Max 51\% difference between two test iterations: {max_50pct_diff}")
     print(f"Max 100\% difference between two test iterations: {max_100pct_diff}")
@@ -103,19 +123,19 @@ if __name__ == '__main__':
         "Avg. 51% Block Propagation Times",
         "fifty_pct_times",
         "Millesconds",
-        "51pct_times"
+        "51pct_times",
     )
     plot_graph(
         graphs,
         "Avg. 95% Block Propagation Times",
         "hundred_pct_times",
         "Millesconds",
-        "95pct_times"
+        "95pct_times",
     )
     plot_graph(
         graphs,
         "Reorg Events per Finalized Block",
         "reorgs_per_block",
         "Avg. Events per Block",
-        "reorg_rates"
+        "reorg_rates",
     )

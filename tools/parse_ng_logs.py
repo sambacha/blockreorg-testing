@@ -38,7 +38,9 @@ def do_parsing():
             q.task_done()
             continue
 
-        os.system(f"time gsutil -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=8' cp gs://whiteblock-logs/{folder}/{syslog_ng_file} ./")
+        os.system(
+            f"time gsutil -o 'GSUtil:parallel_thread_count=1' -o 'GSUtil:sliced_object_download_max_components=8' cp gs://whiteblock-logs/{folder}/{syslog_ng_file} ./"
+        )
         os.system(f"time ./parser -t {test_id} {syslog_ng_file} {name}_{test_id}/")
         print(f"done parsing {syslog_ng_file}, uploading {name}_{test_id}/ now...")
         os.system(f"gsutil -m cp -R {name}_{test_id}/ gs://whiteblock-logs/{folder}")
@@ -47,7 +49,7 @@ def do_parsing():
         q.task_done()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for worker in range(WORKERS):
         threading.Thread(target=do_parsing, daemon=True).start()
 
@@ -59,7 +61,7 @@ if __name__ == '__main__':
         blob = bucket.blob(f"{folder}/autoexec.log")
         blob.download_to_filename(f"autoexec.log")
 
-        with open("autoexec.log", 'r') as f:
+        with open("autoexec.log", "r") as f:
             for line in f:
                 # new process
                 test = json.loads(line)

@@ -33,7 +33,7 @@ class BlockPropagationParser:
         plt.title("100% Block Prop Times")
         plt.ylabel("Milliseconds")
         plt.xlabel("Block Index")
-        plt.plot(parser.hundred_pct_times, '.')
+        plt.plot(parser.hundred_pct_times, ".")
         plt.tight_layout()
         plt.savefig(f"{FIG_SAVE_DIR}/hundred_pct_times.png")
 
@@ -42,7 +42,7 @@ class BlockPropagationParser:
         plt.ylabel("Milliseconds")
         plt.xlabel("Block Index")
         # plt.ylim((0, 300))
-        plt.plot(parser.fifty_pct_times, '.')
+        plt.plot(parser.fifty_pct_times, ".")
         plt.tight_layout()
         plt.savefig(f"{FIG_SAVE_DIR}/fifty_pct_times.png")
 
@@ -54,16 +54,14 @@ class BlockPropagationParser:
                 logline = json.loads(line)
                 hash = logline["Values"]["hash"]
                 if hash not in self.blocks:
-                    self.blocks[hash] = {
-                        "mined": 0,
-                        "importTimes": []
-                    }
+                    self.blocks[hash] = {"mined": 0, "importTimes": []}
                 if logline["message"].startswith("Imported new chain segment"):
                     self.blocks[hash]["importTimes"].append(
                         int(logline["unixNanoTime"] / 1e6)
                     )
-                    self.total_final_blocks = max(logline["Values"]["number"],
-                                                  self.total_final_blocks)
+                    self.total_final_blocks = max(
+                        logline["Values"]["number"], self.total_final_blocks
+                    )
                 if logline["message"].startswith("Successfully sealed new"):
                     self.blocks[hash]["mined"] = logline["unixNanoTime"] / 1e6
                 if logline["message"].startswith("Chain reorg detected"):
@@ -116,7 +114,7 @@ class BlockPropagationParser:
         self.hundred_pct_times = self.hundred_pct_times[10:]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) == 2:
         path = sys.argv[1]
     else:
@@ -161,13 +159,14 @@ if __name__ == '__main__':
     print(f"Nodes: {actual_num_nodes}")
     print(f"Total Blocks Seen: {len(parser.blocks)}")
     print(f"Blocks imported by over 50% nodes: {parser.seen_by_majority()}")
-    print(f"Blocks stats with {parser.num_nodes} import times: {len(parser.fifty_pct_times)}")
+    print(
+        f"Blocks stats with {parser.num_nodes} import times: {len(parser.fifty_pct_times)}"
+    )
     print(f"Finalized blocks: {parser.total_final_blocks}")
     print(f"51% block prop. time avg: {mean(parser.fifty_pct_times):.2f} ms")
     print(f"100% block prop. time avg: {mean(parser.hundred_pct_times):.2f} ms")
     print(f"reorgs total: {parser.total_reorgs}")
     print(f"avg reorgs per block: {parser.total_reorgs / parser.total_final_blocks}")
-
 
     # Uncomment to show the plots (they are also saved)
     # print("Hit Ctrl-c to close figures (you may need to click on a figure)")

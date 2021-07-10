@@ -12,7 +12,7 @@ import json
 # folder in gcp bucket
 folder = ""
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     client = storage.Client()
     bucket = client.get_bucket("whiteblock-logs")
 
@@ -58,15 +58,12 @@ if __name__ == '__main__':
                 print(indicator)
                 autoexec_log.append(test_env)
 
-
     with open("autoexec.log", "w") as f:
         for line in autoexec_log:
-            f.write(json.dumps(line) + '\n')
-
+            f.write(json.dumps(line) + "\n")
 
     blob = bucket.blob(f"{folder}/autoexec.log")
     blob.upload_from_filename("autoexec.log")
-
 
 
 # type TestEnv struct {

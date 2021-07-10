@@ -37,7 +37,7 @@ class BlockPropagationParser:
         plt.title(f"95% Block Prop Times\n Series {series} - Block Size {size}B")
         plt.ylabel("Milliseconds")
         plt.xlabel("Block Index")
-        plt.plot(self.hundred_pct_times, '.')
+        plt.plot(self.hundred_pct_times, ".")
         plt.tight_layout()
         plt.savefig(f"{SAVE_DIR}/{name}_{test_id[:8]}_95pct_times.png")
 
@@ -46,13 +46,13 @@ class BlockPropagationParser:
         plt.ylabel("Milliseconds")
         plt.xlabel("Block Index")
         # plt.ylim((0, 300))
-        plt.plot(self.fifty_pct_times, '.')
+        plt.plot(self.fifty_pct_times, ".")
         plt.tight_layout()
         plt.savefig(f"{SAVE_DIR}/{name}_{test_id[:8]}_51pct_times.png")
 
     def parse_file(self, file):
         # Assumes all log lines have a block hash value in its k-v pairs.
-        with open(file, "r", errors='ignore') as f:
+        with open(file, "r", errors="ignore") as f:
             reorg_cnt = 0
             for line in f:
                 try:
@@ -62,16 +62,14 @@ class BlockPropagationParser:
 
                 hash = logline["Values"]["hash"]
                 if hash not in self.blocks:
-                    self.blocks[hash] = {
-                        "mined": 0,
-                        "importTimes": []
-                    }
+                    self.blocks[hash] = {"mined": 0, "importTimes": []}
                 if logline["message"].startswith("Imported new chain segment"):
                     self.blocks[hash]["importTimes"].append(
                         int(logline["unixNanoTime"] / 1e6)
                     )
-                    self.total_final_blocks = max(logline["Values"]["number"],
-                                                  self.total_final_blocks)
+                    self.total_final_blocks = max(
+                        logline["Values"]["number"], self.total_final_blocks
+                    )
                 if logline["message"].startswith("Successfully sealed new"):
                     self.blocks[hash]["mined"] = logline["unixNanoTime"] / 1e6
                 if logline["message"].startswith("Chain reorg detected"):
@@ -103,7 +101,10 @@ class BlockPropagationParser:
 
                 # TODO: change variable names to 95pct. this was a last minute
                 # change to better represent data.
-                hundred_pct = data["importTimes"][math.floor(self.num_nodes * 0.95) - 2] - data["mined"]
+                hundred_pct = (
+                    data["importTimes"][math.floor(self.num_nodes * 0.95) - 2]
+                    - data["mined"]
+                )
 
                 self.blocks[hash]["fifty_pct"] = fifty_pct
                 self.fifty_pct_times.append(fifty_pct)
@@ -159,7 +160,7 @@ def compile_stats(test_info):
         parser.calc_prop_times()
         parser.truncate_init_stats()
         valid_stats[len(parser.fifty_pct_times)] = parser.num_nodes
-        plt.close('all')
+        plt.close("all")
         del parser
 
     parser = BlockPropagationParser()
@@ -180,10 +181,12 @@ def compile_stats(test_info):
     parser.truncate_init_stats()
     parser.plot_block_prop_times(test_info)
 
-    plt.close('all')
+    plt.close("all")
     if len(parser.fifty_pct_times) == 0:
-        print(f"Error: no results for {path}. valid_stats: {valid_stats}. " +
-              f"finalizedBlocks: {parser.total_final_blocks}")
+        print(
+            f"Error: no results for {path}. valid_stats: {valid_stats}. "
+            + f"finalizedBlocks: {parser.total_final_blocks}"
+        )
         os.chdir("../..")
         return
 
@@ -202,13 +205,15 @@ def compile_stats(test_info):
 
     if len(parser.fifty_pct_times) < 120:
         print(f'Warning: test {test_info["testName"]} has below 120 block stats')
-        print(f'valid_stats: {valid_stats}. finalizedBlocks: {parser.total_final_blocks}')
+        print(
+            f"valid_stats: {valid_stats}. finalizedBlocks: {parser.total_final_blocks}"
+        )
 
     os.chdir("../..")
     return stat
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     master_log = []
     all_stats = []
 
